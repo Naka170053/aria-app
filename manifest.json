@@ -1,0 +1,26 @@
+{
+  "name": "アドバイザーAria - 日報アプリ",
+  "short_name": "Aria日報",
+  "description": "アドバイザーAriaに毎日の支出と日報を報告するアプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f8fc",
+  "theme_color": "#be185d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "lifestyle"],
+  "lang": "ja"
+}
