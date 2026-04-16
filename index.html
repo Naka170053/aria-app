@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>アドバイザーAria</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f0f1a">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap');
+
+:root{
+  --bg:#0f0f1a;
+  --surface:#1a1a2e;
+  --surface2:#22223a;
+  --surface3:#2a2a45;
+  --border:rgba(255,255,255,0.08);
+  --pink:#f472b6;
+  --pink-light:rgba(244,114,182,0.15);
+  --pink-dim:rgba(244,114,182,0.08);
+  --pink-dark:#be185d;
+  --gold:#f59e0b;
+  --green:#34d399;
+  --red:#f87171;
+  --blue:#60a5fa;
+  --purple:#a78bfa;
+  --text:#f0f0ff;
+  --text2:rgba(240,240,255,0.5);
+  --text3:rgba(240,240,255,0.3);
+  --navy:#1e1b4b;
+  --radius:16px;
+  --radius-sm:10px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── BOTTOM NAV ── */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(15,15,26,0.95);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;z-index:200;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
+.nav-btn{
+  flex:1;padding:11px 0 7px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;transition:all .2s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.nav-icon{font-size:20px;transition:transform .2s;}
+.nav-label{font-size:9px;color:var(--text2);font-weight:500;letter-spacing:.5px;}
+.nav-btn.active .nav-icon{transform:scale(1.15);}
+.nav-btn.active .nav-label{color:var(--pink);font-weight:700;}
+
+/* ── PAGES ── */
+.page{display:none;padding:16px 16px calc(90px + env(safe-area-inset-bottom,16px));max-width:440px;margin:0 auto;}
+.page.active{display:block;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cicon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ip{background:rgba(244,114,182,0.15);}
+.iy{background:rgba(245,158,11,0.15);}
+.ib{background:rgba(96,165,250,0.15);}
+.ig{background:rgba(52,211,153,0.15);}
+.ipur{background:rgba(167,139,250,0.15);}
+.ctitle{font-size:14px;font-weight:700;color:var(--text);}
+.csub{font-size:11px;color:var(--text2);margin-top:2px;}
+
+/* ── PAGE HEADER ── */
+.page-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.page-sub{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+
+/* ── HOME HERO ── */
+.home-hero{
+  background:linear-gradient(145deg,#12122a,#1e1b4b,#2d1b69);
+  border-radius:20px;padding:20px;
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:14px;
+  border:1px solid rgba(244,114,182,0.2);
+  box-shadow:0 0 40px rgba(244,114,182,0.1);
+  position:relative;overflow:hidden;
+}
+.home-hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(244,114,182,0.15),transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.hero-avatar{width:72px;height:72px;border-radius:50%;border:2px solid rgba(244,114,182,0.4);overflow:hidden;flex-shrink:0;}
+.hero-avatar svg{width:100%;height:100%;}
+.hero-info{flex:1;z-index:1;}
+.hero-greeting{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:4px;}
+.hero-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--pink);margin-bottom:6px;}
+.hero-msg{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.kpi-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px;
+  text-align:center;
+}
+.kpi-card.highlight{border-color:rgba(244,114,182,0.3);background:var(--pink-dim);}
+.kpi-val{font-size:26px;font-weight:700;color:var(--text);line-height:1;}
+.kpi-val span{font-size:13px;font-weight:400;color:var(--text2);margin-left:2px;}
+.kpi-label{font-size:10px;color:var(--text2);margin-top:4px;}
+
+/* ── QUICK ACTION ── */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.quick-btn{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 12px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.quick-btn:active{transform:scale(0.97);}
+.quick-btn .qicon{font-size:22px;margin-bottom:6px;display:block;}
+.quick-btn .qtxt{font-size:11px;color:var(--text2);font-weight:500;}
+
+/* ── FIRE PROGRESS ── */
+.fire-card{
+  background:linear-gradient(135deg,#1a1a2e,#2d1b4b);
+  border:1px solid rgba(245,158,11,0.2);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.fire-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.fire-title{font-size:13px;font-weight:700;color:var(--gold);}
+.fire-age{font-size:11px;color:var(--text2);}
+.fire-milestones{display:flex;flex-direction:column;gap:8px;}
+.milestone{display:flex;align-items:center;gap:10px;}
+.milestone-bar-bg{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+.milestone-bar{height:100%;border-radius:3px;transition:width .8s ease;}
+.milestone-label{font-size:11px;color:var(--text2);white-space:nowrap;min-width:70px;text-align:right;}
+.milestone-icon{font-size:14px;width:20px;text-align:center;}
+
+/* ── MONTHLY CHART ── */
+.chart-wrap{margin-bottom:12px;}
+.chart-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar-inner{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s ease;}
+.bar-inner.ok{background:linear-gradient(to top,#34d399,#6ee7b7);}
+.bar-inner.over{background:linear-gradient(to top,#f87171,#fca5a5);}
+.bar-day{font-size:8px;color:var(--text3);}
+
+/* ── INVESTMENT TAB ── */
+.inv-summary{
+  background:linear-gradient(135deg,#1a2a1a,#1a3a2a);
+  border:1px solid rgba(52,211,153,0.2);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.inv-total{font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px;}
+.inv-total span{font-size:13px;color:var(--text2);font-weight:400;margin-left:4px;}
+.inv-gain{font-size:13px;color:var(--green);margin-bottom:12px;}
+.inv-rows{display:flex;flex-direction:column;gap:8px;}
+.inv-row{display:flex;align-items:center;justify-content:space-between;}
+.inv-row-label{font-size:12px;color:var(--text2);}
+.inv-row-val{font-size:13px;font-weight:700;color:var(--text);}
+
+.fire-sim{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.sim-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.sim-cell{text-align:center;padding:10px 6px;background:var(--surface2);border-radius:var(--radius-sm);}
+.sim-cell.best{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);}
+.sim-cell.mid{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);}
+.sim-cell.low{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);}
+.sim-scenario{font-size:9px;color:var(--text2);margin-bottom:4px;}
+.sim-val{font-size:15px;font-weight:700;}
+.sim-cell.best .sim-val{color:var(--green);}
+.sim-cell.mid .sim-val{color:var(--blue);}
+.sim-cell.low .sim-val{color:var(--red);}
+.sim-age{font-size:9px;color:var(--text2);margin-top:3px;}
+
+.checklist-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.check-item:last-child{border-bottom:none;}
+.check-box{
+  width:22px;height:22px;border-radius:6px;
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+}
+.check-item.done .check-box{background:var(--green);border-color:var(--green);}
+.check-item.done .check-box::after{content:'✓';color:white;font-size:12px;font-weight:700;}
+.check-item.done .check-main{color:var(--text2);text-decoration:line-through;}
+.check-main{font-size:13px;color:var(--text);}
+.check-sub{font-size:11px;color:var(--text2);}
+
+/* ── SETTINGS ── */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:14px;color:var(--text);}
+.setting-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.setting-input{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 12px;
+  color:var(--text);
+  font-size:14px;
+  font-family:'Noto Sans JP',sans-serif;
+  width:120px;
+  text-align:right;
+}
+.setting-input:focus{outline:none;border-color:var(--pink);}
+
+/* ── REPORT FORM ── */
+.date-row{margin-bottom:8px;}
+.date-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.date-input-hidden{position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer;}
+
+.mood-wrap{display:flex;gap:8px;}
+.mood-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 4px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'Noto Sans JP',sans-serif;}
+.mood-btn span{font-size:10px;color:var(--text2);}
+.mood-btn:first-child{font-size:20px;}
+.mood-btn.active{border-color:var(--pink);background:var(--pink-light);}
+
+.meter-wrap{margin-bottom:14px;}
+.meter-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;}
+.meter-val{font-weight:700;color:var(--text);}
+.meter-bg{background:var(--surface2);border-radius:6px;height:8px;overflow:hidden;margin-bottom:4px;}
+.meter-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--pink));border-radius:6px;transition:width .4s ease,background .3s;}
+.meter-bar.over{background:linear-gradient(90deg,var(--pink),var(--red));}
+.meter-foot{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);}
+.remain-lbl{font-size:11px;font-weight:700;color:var(--green);}
+.remain-lbl.over{color:var(--red);}
+
+.item-grid{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px;align-items:center;}
+.item-grid-3{display:grid;grid-template-columns:1fr 1fr 90px;gap:6px;margin-bottom:8px;align-items:center;}
+.item-hdr{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1px;}
+.icat,.iamt{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:10px;color:var(--text);font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;width:100%;
+}
+.icat:focus,.iamt:focus{outline:none;border-color:var(--pink);}
+.iamt{text-align:right;}
+.income-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.income-row span{font-size:12px;color:var(--green);}
+.income-row .iamt{width:120px;}
+.add-row-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;margin-top:4px;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.add-row-btn:active{background:var(--surface3);}
+
+.iline{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:12px;color:var(--text);font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.iline:focus{outline:none;border-color:var(--pink);}
+
+.score-wrap{display:flex;gap:8px;}
+.sbtn{flex:1;padding:12px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP',sans-serif;}
+.sbtn.active{border-color:var(--pink);background:var(--pink-light);color:var(--pink);}
+
+.submit-btn{
+  width:100%;padding:16px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--pink),var(--pink-dark));
+  color:white;font-size:15px;font-weight:700;
+  font-family:'Noto Sans JP',sans-serif;
+  transition:all .2s;margin-bottom:16px;
+  box-shadow:0 8px 32px rgba(244,114,182,0.3);
+}
+.submit-btn:active{transform:scale(0.98);}
+
+.tip-box{font-size:11px;color:var(--text2);margin-top:8px;line-height:1.8;padding:8px 10px;background:var(--surface2);border-radius:8px;display:none;}
+
+/* ── RESPONSE ── */
+.resp-wrap{display:none;margin-top:8px;}
+.resp-card{
+  background:linear-gradient(135deg,#1e1b4b,#2d1b69);
+  border:1px solid rgba(244,114,182,0.2);
+  border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.resp-avatar{width:36px;height:36px;border-radius:50%;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.resp-text{font-size:13px;line-height:1.9;color:rgba(255,255,255,0.85);}
+
+.tweet-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.tweet-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.tweet-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.isky{background:rgba(96,165,250,0.15);}
+.tweet-title{font-size:12px;font-weight:700;color:var(--text);}
+.tweet-sub{font-size:10px;color:var(--text2);}
+
+/* ── TWEET TYPE SELECTOR ── */
+.tweet-type-wrap{display:flex;gap:6px;margin-bottom:10px;}
+.ttype-btn{flex:1;padding:7px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--text2);cursor:pointer;font-family:'Noto Sans JP',sans-serif;text-align:center;transition:all .2s;}
+.ttype-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(96,165,250,0.1);}
+
+.tweet-box{
+  background:var(--surface2);border-radius:8px;padding:12px;
+  font-size:12px;line-height:1.8;color:var(--text);
+  white-space:pre-wrap;word-break:break-all;min-height:60px;
+}
+.score-disp{text-align:center;padding:10px 0;margin-bottom:8px;}
+.score-num{font-size:40px;font-weight:700;color:var(--pink);}
+.score-lbl{font-size:11px;color:var(--text2);}
+.char-cnt{font-size:10px;color:var(--text3);text-align:right;margin-top:4px;}
+.tweet-btns{display:flex;gap:8px;margin-top:8px;}
+.copy-btn{flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.post-btn{flex:1;padding:9px;background:linear-gradient(135deg,#1d9bf0,#0d6efd);border:none;border-radius:8px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+
+/* ── STREAK ── */
+.streak-banner{
+  background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.15));
+  border:1px solid rgba(245,158,11,0.3);
+  border-radius:12px;padding:12px 16px;
+  display:none;align-items:center;gap:12px;margin-bottom:12px;
+}
+.streak-fire{font-size:28px;}
+.streak-num{font-size:28px;font-weight:700;color:var(--gold);}
+.streak-label{font-size:12px;color:var(--text2);}
+.streak-sub{font-size:11px;color:var(--text2);}
+
+/* ── CALENDAR ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;}
+.stat-card.highlight{border-color:rgba(244,114,182,0.3);background:var(--pink-dim);}
+.stat-num{font-size:22px;font-weight:700;color:var(--text);}
+.stat-unit{font-size:11px;font-weight:400;color:var(--text2);}
+.stat-label{font-size:9px;color:var(--text2);margin-top:2px;}
+
+.data-actions{display:flex;gap:8px;margin-bottom:12px;}
+.data-btn{flex:1;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;text-align:center;}
+
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-title-txt{font-size:15px;font-weight:700;color:var(--text);}
+.cal-nav-btn{background:var(--surface2);border:1px solid var(--border);width:30px;height:30px;border-radius:8px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-dow{text-align:center;font-size:10px;color:var(--text2);padding:4px 0;font-weight:700;}
+.cal-day{border-radius:8px;padding:4px 2px;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:default;}
+.cal-day.today{background:var(--surface2);border:1px solid var(--border);}
+.cal-day.has-data{cursor:pointer;}
+.cal-day.has-data:active{background:var(--surface2);}
+.cal-day.empty{opacity:0;}
+.day-num{font-size:12px;color:var(--text2);margin-bottom:3px;}
+.day-dot{width:8px;height:8px;border-radius:50%;}
+.import-input{display:none;}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:1000;display:none;align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border-radius:24px 24px 0 0;
+  padding:20px 20px 40px;width:100%;max-height:80vh;overflow-y:auto;
+}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-date-lbl{font-size:13px;color:var(--text2);margin-bottom:12px;}
+.modal-score-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.modal-score-big{font-size:48px;font-weight:700;color:var(--pink);}
+.modal-score-info{flex:1;}
+.modal-score-lbl{font-size:12px;color:var(--text2);margin-bottom:4px;}
+.modal-bar-bg{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.modal-bar{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:4px;}
+.detail-sec{margin-bottom:12px;}
+.detail-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-icon{font-size:16px;width:22px;flex-shrink:0;margin-top:1px;}
+.detail-lbl{font-size:11px;color:var(--text2);}
+.detail-val{font-size:13px;color:var(--text);margin-top:2px;}
+.aria-bubble{background:var(--surface2);border-radius:12px;padding:12px;margin:12px 0;display:flex;flex-direction:column;align-items:center;}
+.aria-bubble-text{font-size:12px;line-height:1.8;color:var(--text2);text-align:center;}
+.modal-tweet-box{background:var(--surface2);border-radius:8px;padding:10px;font-size:11px;line-height:1.7;color:var(--text);white-space:pre-wrap;margin-bottom:6px;}
+.modal-copy-btn{width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:8px;}
+.modal-close{width:100%;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:8px;}
+
+/* ── SEC LABEL ── */
+.sec-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px;padding-left:4px;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text2);}
+.empty-state .emoji{font-size:44px;margin-bottom:12px;}
+.empty-state p{font-size:13px;line-height:1.8;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease forwards;}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.badge-green{background:rgba(52,211,153,0.15);color:var(--green);}
+.badge-red{background:rgba(248,113,113,0.15);color:var(--red);}
+
+/* ── HELP ── */
+.help-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:8px;}
+.help-item-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;}
+.help-item-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.help-item-arrow{font-size:12px;color:var(--text2);transition:transform .2s;}
+.help-item.open .help-item-arrow{transform:rotate(180deg);}
+.help-item-body{display:none;padding:12px 16px 14px;font-size:12px;color:var(--text2);line-height:1.9;border-top:1px solid var(--border);}
+.help-item.open .help-item-body{display:block;}
+.help-step{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.help-step:last-child{border-bottom:none;}
+.help-step-num{width:22px;height:22px;border-radius:50%;background:var(--pink-light);color:var(--pink);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.help-step-text{font-size:12px;color:var(--text2);line-height:1.7;}
+.hb{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;margin-right:3px;}
+.hb-pink{background:rgba(244,114,182,0.15);color:var(--pink);}
+.hb-green{background:rgba(52,211,153,0.15);color:var(--green);}
+.hb-blue{background:rgba(96,165,250,0.15);color:var(--blue);}
+.hb-gold{background:rgba(245,158,11,0.15);color:var(--gold);}
+
+/* ── FLOATING TWEET BUTTON ── */
+.fab-tweet{
+  position:fixed;
+  bottom:calc(70px + env(safe-area-inset-bottom, 8px));
+  right:16px;
+  width:52px;height:52px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#1d9bf0,#0d6efd);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 20px rgba(29,155,240,0.4);
+  z-index:150;
+  transition:all .2s;
+}
+.fab-tweet:active{transform:scale(0.92);}
+.fab-tweet.has-data::after{
+  content:'';
+  position:absolute;top:2px;right:2px;
+  width:12px;height:12px;
+  background:var(--green);
+  border-radius:50%;
+  border:2px solid var(--bg);
+}
+
+/* ── TWEET MODAL ── */
+.tweet-modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:300;
+  display:none;align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+.tweet-modal-overlay.open{display:flex;}
+.tweet-modal{
+  background:var(--surface);
+  border-radius:24px 24px 0 0;
+  padding:20px 20px 40px;
+  width:100%;
+}
+.tweet-modal-handle{
+  width:40px;height:4px;
+  background:var(--border);
+  border-radius:2px;
+  margin:0 auto 16px;
+}
+.tweet-modal-title{
+  font-size:15px;font-weight:700;
+  color:var(--text);margin-bottom:4px;
+}
+.tweet-modal-sub{
+  font-size:11px;color:var(--text2);
+  margin-bottom:16px;
+}
+.tweet-preview{
+  background:var(--surface2);
+  border-radius:12px;
+  padding:14px;
+  font-size:12px;
+  line-height:1.9;
+  color:var(--text);
+  white-space:pre-wrap;
+  word-break:break-all;
+  min-height:80px;
+  margin-bottom:8px;
+}
+.tweet-char{
+  font-size:10px;color:var(--text3);
+  text-align:right;margin-bottom:14px;
+}
+.tweet-action-row{
+  display:flex;gap:10px;
+}
+.tweet-copy-btn{
+  flex:1;padding:13px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'Noto Sans JP',sans-serif;
+}
+.tweet-post-btn{
+  flex:2;padding:13px;
+  background:linear-gradient(135deg,#1d9bf0,#0d6efd);
+  border:none;border-radius:12px;
+  color:white;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'Noto Sans JP',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.tweet-modal-close{
+  width:100%;margin-top:10px;padding:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;color:var(--text2);
+  font-size:13px;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;
+}
+.no-report-msg{
+  text-align:center;padding:20px;
+  font-size:13px;color:var(--text2);
+  line-height:1.8;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PAGE: HOME ══════════ -->
+<div class="page active" id="pageHome">
+
+  <!-- ARIA HERO -->
+  <div class="home-hero">
+    <div class="hero-avatar">
+      <svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="80" cy="72" rx="46" ry="50" fill="#2d1b69"/>
+        <path d="M34 80 Q20 120 28 160 Q36 150 40 130 Q44 140 46 155 Q52 130 50 100 Z" fill="#2d1b69"/>
+        <path d="M126 80 Q140 120 132 160 Q124 150 120 130 Q116 140 114 155 Q108 130 110 100 Z" fill="#2d1b69"/>
+        <ellipse cx="80" cy="88" rx="36" ry="38" fill="#fde8d8"/>
+        <ellipse cx="60" cy="98" rx="10" ry="6" fill="#f9a8d4" opacity="0.5"/>
+        <ellipse cx="100" cy="98" rx="10" ry="6" fill="#f9a8d4" opacity="0.5"/>
+        <ellipse cx="66" cy="88" rx="7" ry="8" fill="white"/>
+        <ellipse cx="94" cy="88" rx="7" ry="8" fill="white"/>
+        <ellipse cx="67" cy="89" rx="4" ry="5" fill="#2d1b69"/>
+        <ellipse cx="95" cy="89" rx="4" ry="5" fill="#2d1b69"/>
+        <circle cx="69" cy="87" r="1.5" fill="white"/>
+        <circle cx="97" cy="87" r="1.5" fill="white"/>
+        <path d="M70 106 Q80 112 90 106" stroke="#e8917a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M44 60 Q50 40 80 38 Q110 40 116 60 Q100 48 80 50 Q60 48 44 60 Z" fill="#3730a3"/>
+        <rect x="70" y="122" width="20" height="16" rx="4" fill="#fde8d8"/>
+        <path d="M30 175 Q36 138 60 132 L80 138 L100 132 Q124 138 130 175 Q110 185 80 186 Q50 185 30 175 Z" fill="#1e1b4b"/>
+        <path d="M78 140 L82 140 L84 165 L80 170 L76 165 Z" fill="#f472b6"/>
+      </svg>
+    </div>
+    <div class="hero-info">
+      <div class="hero-greeting">ARIA · ADVISOR</div>
+      <div class="hero-name">アドバイザーAria</div>
+      <div class="hero-msg" id="heroMsg">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- STREAK -->
+  <div class="streak-banner" id="streakBanner">
+    <div class="streak-fire">🔥</div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:4px;">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-label">日連続達成！</div>
+      </div>
+      <div class="streak-sub" id="streakSub"></div>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-val" id="kpiTodayBudget">¥0<span>/ 本日</span></div>
+      <div class="kpi-label">今日の支出</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="kpiMonthAch">0<span>%</span></div>
+      <div class="kpi-label">今月達成率</div>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="kpi-val" id="kpiStreak">0<span>日</span></div>
+      <div class="kpi-label">連続達成</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="kpiAvgScore">0<span>点</span></div>
+      <div class="kpi-label">平均スコア</div>
+    </div>
+  </div>
+
+  <!-- 今月の支出グラフ -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon iy">📊</div><div><div class="ctitle">今月の支出推移</div><div class="csub">直近10日間</div></div></div>
+    <div class="bar-chart" id="homeBarChart"></div>
+  </div>
+
+  <!-- FIRE進捗 -->
+  <div class="fire-card">
+    <div class="fire-header">
+      <div class="fire-title">🎯 FIREマイルストーン</div>
+      <div class="fire-age" id="fireAgeLabel"></div>
+    </div>
+    <div class="fire-milestones" id="fireMilestones"></div>
+  </div>
+
+  <!-- クイックアクション -->
+  <div class="sec-label">クイックアクション</div>
+  <div class="quick-grid">
+    <div class="quick-btn" onclick="showPage('Report')">
+      <span class="qicon">📝</span>
+      <span class="qtxt">今日の日報を書く</span>
+    </div>
+    <div class="quick-btn" onclick="showPage('Invest')">
+      <span class="qicon">📈</span>
+      <span class="qtxt">投資状況を確認</span>
+    </div>
+    <div class="quick-btn" onclick="showPage('Calendar')">
+      <span class="qicon">📅</span>
+      <span class="qtxt">過去の記録を見る</span>
+    </div>
+    <div class="quick-btn" onclick="showPage('Settings')">
+      <span class="qicon">⚙️</span>
+      <span class="qtxt">設定を変更する</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: REPORT ══════════ -->
+<div class="page" id="pageReport">
+  <div class="date-row">
+    <div style="position:relative;display:inline-block;">
+      <button class="date-btn" id="dateBtnLabel">読み込み中...</button>
+      <input type="date" id="reportDateInp" class="date-input-hidden" onchange="onDateChange()">
+    </div>
+  </div>
+  <div class="page-title">今日の日報</div>
+  <div class="page-sub">Daily Report to Aria</div>
+
+  <!-- 気分 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ip">😊</div><div><div class="ctitle">今日の気分</div><div class="csub">今日の状態を選択してください</div></div></div>
+    <div class="mood-wrap">
+      <button class="mood-btn" onclick="selMood(this)">😫<span>つらい</span></button>
+      <button class="mood-btn" onclick="selMood(this)">😐<span>普通</span></button>
+      <button class="mood-btn" onclick="selMood(this)">😊<span>まあまあ</span></button>
+      <button class="mood-btn" onclick="selMood(this)">😄<span>最高</span></button>
+    </div>
+  </div>
+
+  <!-- 支出 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon iy">💰</div><div><div class="ctitle">今日の支出</div><div class="csub" id="budgetSubLabel">予算¥3,000 ※固定費除く</div></div></div>
+    <div class="meter-wrap">
+      <div class="meter-top"><span>合計支出</span><span class="meter-val" id="expDisp">¥0 / ¥3,000</span></div>
+      <div class="meter-bg"><div class="meter-bar" id="mBar"></div></div>
+      <div class="meter-foot"><span>¥0</span><span class="remain-lbl" id="remainLbl">残り ¥3,000</span><span id="budgetLabel">¥3,000</span></div>
+    </div>
+    <div class="item-grid-3 item-hdr" style="margin-bottom:6px;"><span>大分類</span><span>中分類</span><span style="text-align:right;">金額（円）</span></div>
+    <div id="iRows"></div>
+    <button class="add-row-btn" onclick="addRow()">＋ 項目を追加</button>
+    <div class="income-row"><span>💚 臨時収入（あれば）</span><input class="iamt" type="number" placeholder="0" min="0" id="incomeInp" oninput="calcTotal()"></div>
+    <div class="tip-box" id="budgetTip"></div>
+  </div>
+
+  <!-- 褒める（必須） -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ig">⭐</div><div><div class="ctitle">今日の自分を褒める</div><div class="csub">必須項目 - 1つ入力してください</div></div></div>
+    <input class="iline" type="text" placeholder="例：食費我慢した・早起きした" id="praiseInp">
+    <div class="tip-box" id="praiseTip"></div>
+  </div>
+
+  <!-- ストレス -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ip">🌡️</div><div><div class="ctitle">今日のストレス度</div><div class="csub">1（余裕）〜 5（しんどい）</div></div></div>
+    <div class="score-wrap">
+      <button class="sbtn" onclick="selScore(this)">1</button>
+      <button class="sbtn" onclick="selScore(this)">2</button>
+      <button class="sbtn" onclick="selScore(this)">3</button>
+      <button class="sbtn" onclick="selScore(this)">4</button>
+      <button class="sbtn" onclick="selScore(this)">5</button>
+    </div>
+  </div>
+
+  <!-- 今月の積立確認 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ig">📈</div><div><div class="ctitle">今月の積立確認</div><div class="csub">設定通りに積立できているか確認する</div></div></div>
+    <div id="investCheckWrap"></div>
+    <div class="tip-box" style="display:block;">📌 月1回・第1土曜日の確認を推奨。頻繁な確認は行動バイアスを誘発する。</div>
+  </div>
+
+  <button class="submit-btn" onclick="submitReport()">アドバイザーAriaに報告する 📨</button>
+
+  <!-- RESPONSE -->
+  <div class="resp-wrap" id="respWrap">
+    <div class="resp-card">
+      <div class="resp-avatar">💬</div>
+      <div class="resp-text" id="respText"></div>
+    </div>
+
+    <!-- ツイート①：日報型 -->
+    <div class="tweet-card">
+      <div class="tweet-hdr"><div class="tweet-icon isky">🐦</div><div><div class="tweet-title">① 投稿タイプを選んでシェア</div><div class="tweet-sub">投資判断はAIに任せるマン</div></div></div>
+      <div class="tweet-type-wrap">
+        <button class="ttype-btn active" onclick="switchTweetType(1,'diary',this)">📋日報</button>
+        <button class="ttype-btn" onclick="switchTweetType(1,'knowledge',this)">💡知識</button>
+        <button class="ttype-btn" onclick="switchTweetType(1,'bias',this)">🧠バイアス</button>
+      </div>
+      <div class="tweet-box" id="tweetBox1"></div>
+      <div class="char-cnt" id="cc1">0 / 140文字</div>
+      <div class="tweet-btns">
+        <button class="copy-btn" id="cpBtn1" onclick="copyTweet(1)">📋 コピー</button>
+        <button class="post-btn" onclick="postTweet(1)">𝕏 ポスト</button>
+      </div>
+    </div>
+
+    <!-- ツイート②：Ariaの評価 -->
+    <div class="tweet-card">
+      <div class="tweet-hdr"><div class="tweet-icon ipur">🌸</div><div><div class="tweet-title">② Ariaの評価をシェア</div><div class="tweet-sub">AIアドバイザーの前向きメッセージ</div></div></div>
+      <div class="score-disp">
+        <div class="score-num" id="scoreNum">-</div>
+        <div class="score-lbl">点 / 100点満点</div>
+      </div>
+      <div class="tweet-box" id="tweetBox2"></div>
+      <div class="char-cnt" id="cc2">0 / 140文字</div>
+      <div class="tweet-btns">
+        <button class="copy-btn" id="cpBtn2" onclick="copyTweet(2)">📋 コピー</button>
+        <button class="post-btn" onclick="postTweet(2)">𝕏 ポスト</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: INVEST ══════════ -->
+<div class="page" id="pageInvest">
+  <div class="page-title">投資ダッシュボード</div>
+  <div class="page-sub">Investment Dashboard</div>
+
+  <!-- 資産サマリー -->
+  <div class="inv-summary">
+    <div class="inv-total" id="invTotal">¥0<span>円</span></div>
+    <div class="inv-gain" id="invGain">設定から総資産を入力してください</div>
+    <div class="inv-rows" id="invRows"></div>
+  </div>
+
+  <!-- FIREシミュレーター -->
+  <div class="fire-sim">
+    <div class="sim-title" id="simTitle">🔥 FIREシミュレーター</div>
+    <div class="sim-grid">
+      <div class="sim-cell best">
+        <div class="sim-scenario">楽観 6%</div>
+        <div class="sim-val" id="sim6">-</div>
+        <div class="sim-age" id="simAge6">-</div>
+      </div>
+      <div class="sim-cell mid">
+        <div class="sim-scenario">ベース 4%</div>
+        <div class="sim-val" id="sim4">-</div>
+        <div class="sim-age" id="simAge4">-</div>
+      </div>
+      <div class="sim-cell low">
+        <div class="sim-scenario">悲観 2%</div>
+        <div class="sim-val" id="sim2">-</div>
+        <div class="sim-age" id="simAge2">-</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:10px;font-size:10px;color:var(--text2);" id="fireTargetLabel">FIRE必要資産：設定から入力してください</div>
+  </div>
+
+  <!-- 月次積立チェックリスト -->
+  <div class="sec-label">今月の積立チェック</div>
+  <div class="checklist-card" id="checklistCard">
+    <div style="text-align:center;padding:20px;font-size:12px;color:var(--text2);" id="checklistEmpty">
+      設定画面からチェックリストを登録してください
+    </div>
+  </div>
+
+  <!-- 積立配分 -->
+  <div class="sec-label">積立配分</div>
+  <div class="card">
+    <div style="display:flex;flex-direction:column;gap:10px;" id="allocationList">
+      <div style="text-align:center;padding:10px;font-size:12px;color:var(--text2);">
+        設定画面から積立配分を登録してください
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: CALENDAR ══════════ -->
+<div class="page" id="pageCalendar">
+  <div class="page-title" style="text-align:left;margin-bottom:2px;">記録カレンダー</div>
+  <div class="page-sub" style="text-align:left;margin-bottom:14px;">History & Stats</div>
+
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <div class="sec-label">データ管理</div>
+  <div class="data-actions">
+    <button class="data-btn" onclick="exportData()">📤 エクスポート</button>
+    <button class="data-btn" onclick="document.getElementById('importInput').click()">📥 インポート</button>
+    <input type="file" id="importInput" class="import-input" accept=".json" onchange="importData(this)">
+  </div>
+
+  <div class="sec-label">カレンダー</div>
+  <div class="card" style="padding:14px;">
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="prevMonth()">‹</button>
+      <div class="cal-title-txt" id="calTitle"></div>
+      <button class="cal-nav-btn" onclick="nextMonth()">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <div id="calEmpty" class="empty-state" style="display:none;">
+    <div class="emoji">📝</div>
+    <p>記録データがまだありません。<br>日報の入力を開始することで<br>Ariaの分析が始まります。</p>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: SETTINGS ══════════ -->
+<div class="page" id="pageSettings">
+  <div class="page-title">設定</div>
+  <div class="page-sub">Settings</div>
+
+  <!-- 予算設定 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon iy">💰</div><div><div class="ctitle">予算設定</div><div class="csub">日次支出の目標金額</div></div></div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">1日の予算</div>
+        <div class="setting-sub">固定費（家賃・光熱費等）は除く</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:12px;color:var(--text2);">¥</span>
+        <input class="setting-input" type="number" id="budgetSetting" value="3000" min="500" max="50000" step="500" onchange="saveBudget()">
+      </div>
+    </div>
+  </div>
+
+  <!-- 投資・FIRE設定 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ig">📈</div><div><div class="ctitle">投資・FIRE設定</div><div class="csub">FIREシミュレーション用パラメーター</div></div></div>
+    <div class="setting-row">
+      <div><div class="setting-label">現在の総資産</div><div class="setting-sub">万円単位</div></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input class="setting-input" type="number" id="assetSetting" value="0" min="0" onchange="saveInvSettings()">
+        <span style="font-size:12px;color:var(--text2);">万円</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">月次積立額</div><div class="setting-sub">万円単位</div></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input class="setting-input" type="number" id="monthlySetting" value="10" min="1" onchange="saveInvSettings()">
+        <span style="font-size:12px;color:var(--text2);">万円</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">FIRE目標資産</div><div class="setting-sub">万円単位</div></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input class="setting-input" type="number" id="fireSetting" value="5000" min="100" onchange="saveInvSettings()">
+        <span style="font-size:12px;color:var(--text2);">万円</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">現在の年齢</div></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input class="setting-input" type="number" id="ageSetting" value="30" min="20" max="70" onchange="saveInvSettings()">
+        <span style="font-size:12px;color:var(--text2);">歳</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 資産内訳設定 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ipur">📊</div><div><div class="ctitle">資産内訳</div><div class="csub">投資タブに表示される内訳（任意）</div></div></div>
+    <div id="assetBreakdownRows"></div>
+    <button class="add-row-btn" onclick="addAssetRow()" style="margin-top:8px;">＋ 内訳を追加</button>
+    <button onclick="saveAssetBreakdown()" style="width:100%;margin-top:8px;padding:10px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);border-radius:8px;color:var(--blue);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">保存する</button>
+  </div>
+
+  <!-- 積立配分設定 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ig">💹</div><div><div class="ctitle">積立配分</div><div class="csub">投資タブに表示される配分（任意）</div></div></div>
+    <div id="allocationRows"></div>
+    <button class="add-row-btn" onclick="addAllocationRow()" style="margin-top:8px;">＋ 配分を追加</button>
+    <button onclick="saveAllocation()" style="width:100%;margin-top:8px;padding:10px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);border-radius:8px;color:var(--blue);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">保存する</button>
+  </div>
+
+  <!-- チェックリスト設定 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ib">✅</div><div><div class="ctitle">月次チェックリスト</div><div class="csub">投資タブのチェック項目（任意）</div></div></div>
+    <div id="checklistRows"></div>
+    <button class="add-row-btn" onclick="addChecklistRow()" style="margin-top:8px;">＋ 項目を追加</button>
+    <button onclick="saveChecklist()" style="width:100%;margin-top:8px;padding:10px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);border-radius:8px;color:var(--blue);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">保存する</button>
+  </div>
+
+  <!-- データ管理 -->
+  <div class="card">
+    <div class="card-hdr"><div class="cicon ip">🗑️</div><div><div class="ctitle">データ管理</div><div class="csub">注意：削除は元に戻せません</div></div></div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">全データをリセット</div>
+        <div class="setting-sub">すべての日報記録が削除されます</div>
+      </div>
+      <button onclick="resetAllData()" style="padding:8px 14px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:8px;color:var(--red);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">リセット</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text3);">
+    アドバイザーAria v5.0<br>
+    Powered by Claude AI
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-date-lbl" id="modalDate"></div>
+    <div class="modal-score-row">
+      <div class="modal-score-big" id="modalScore">-</div>
+      <div class="modal-score-info">
+        <div class="modal-score-lbl">アドバイザーAriaの評価</div>
+        <div class="modal-bar-bg"><div class="modal-bar" id="modalBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div id="modalContent"></div>
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">閉じる</button>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: HELP ══════════ -->
+<div class="page" id="pageHelp">
+  <div class="page-title">ヘルプ</div>
+  <div class="page-sub">How to use Aria</div>
+
+  <!-- はじめに -->
+  <div class="sec-label">はじめに</div>
+
+  <div class="help-item open">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">🚀 初期設定の手順</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-text"><span class="hb hb-gold">設定タブ</span>を開き、<b>現在の総資産・月次積立額・FIRE目標・年齢・1日の予算</b>を入力する</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-text"><span class="hb hb-gold">設定タブ</span>の「資産内訳」に保有資産の内訳を入力して保存する（任意）</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-text"><span class="hb hb-gold">設定タブ</span>の「積立配分」に月次の積立先と金額を入力して保存する（任意）</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">4</div>
+        <div class="help-step-text"><span class="hb hb-gold">設定タブ</span>の「月次チェックリスト」に毎月確認するタスクを登録して保存する（任意）</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">5</div>
+        <div class="help-step-text">設定完了。<span class="hb hb-pink">ホームタブ</span>でFIREまでの進捗を確認できる</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 各タブの説明 -->
+  <div class="sec-label">各タブの使い方</div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">🏠 ホームタブ</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      アプリの総合ダッシュボードです。<br><br>
+      <b style="color:var(--text);">表示内容：</b><br>
+      • 今日の支出・今月達成率・連続達成日数・平均スコア<br>
+      • 直近10日間の支出グラフ<br>
+      • FIREマイルストーン進捗バー（目標資産に対する現在の達成率）<br><br>
+      <b style="color:var(--text);">推奨利用頻度：</b>毎日確認
+    </div>
+  </div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">📝 日報タブ</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      毎日の記録を入力するメイン画面です。<br><br>
+      <b style="color:var(--text);">入力項目：</b><br>
+      • 今日の気分（選択式）<br>
+      • 今日の支出（カテゴリ別・複数行入力可）<br>
+      • <span class="hb hb-pink">必須</span>今日の自分を褒める（自己評価の言語化）<br>
+      • ストレス度（1〜5）<br>
+      • 明日やること（1つだけ）<br><br>
+      <b style="color:var(--text);">送信後：</b><br>
+      Ariaがスコア（40〜100点）を算出し、行動経済学に基づくフィードバックを表示。X（Twitter）への投稿文も自動生成されます。<br><br>
+      <b style="color:var(--text);">推奨利用頻度：</b>毎日（夜）
+    </div>
+  </div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">📈 投資タブ</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      投資状況の管理画面です。<br><br>
+      <b style="color:var(--text);">表示内容：</b><br>
+      • 総資産サマリー・資産内訳<br>
+      • FIREシミュレーター（楽観6% / ベース4% / 悲観2%）<br>
+      • 月次積立チェックリスト<br>
+      • 積立配分一覧<br><br>
+      <b style="color:var(--text);">重要：</b><br>
+      行動経済学の研究では、投資状況の確認頻度が高いほど衝動的な売買が増加することが示されています。<br><br>
+      <span class="hb hb-gold">推奨確認頻度：月1回（第1土曜日）</span>
+    </div>
+  </div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">📅 記録タブ</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      過去の日報を振り返る画面です。<br><br>
+      <b style="color:var(--text);">表示内容：</b><br>
+      • 30日の記録数・平均スコア・達成率・連続達成日数<br>
+      • カレンダー（緑：達成日 / 赤：超過日）<br>
+      • 日付をタップで詳細表示<br><br>
+      <b style="color:var(--text);">データ管理：</b><br>
+      • エクスポート：JSON形式でバックアップ<br>
+      • インポート：バックアップから復元<br><br>
+      <b style="color:var(--text);">推奨利用頻度：</b>月1回
+    </div>
+  </div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">⚙️ 設定タブ</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      各種パラメーターの設定画面です。<br><br>
+      <b style="color:var(--text);">設定項目：</b><br>
+      • 1日の予算（円）<br>
+      • 現在の総資産・月次積立額・FIRE目標・年齢<br>
+      • 資産内訳（自由に追加・削除・保存）<br>
+      • 積立配分（自由に追加・削除・保存）<br>
+      • 月次チェックリスト（自由に追加・削除・保存）<br>
+      • 全データリセット<br><br>
+      <b style="color:var(--text);">注意：</b>資産内訳・積立配分・チェックリストは「保存する」ボタンを押すまで反映されません。
+    </div>
+  </div>
+
+  <!-- スコアの説明 -->
+  <div class="sec-label">スコアの仕組み</div>
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">🎯 Ariaのスコア算出方法</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      日報送信後に算出される100点満点のスコアです。<br><br>
+      <b style="color:var(--text);">加点要素：</b><br>
+      • 支出¥0達成：+20点<br>
+      • 予算内着地：+8〜18点（残額に応じて）<br>
+      • 自己評価の記入：+4〜8点<br>
+      • ストレス低（1〜2）：+4〜7点<br><br>
+      <b style="color:var(--text);">減点要素：</b><br>
+      • 予算超過：−3〜10点<br>
+      • ストレス高（4〜5）：−3〜6点<br><br>
+      <b style="color:var(--text);">スコアの目安：</b><br>
+      85点以上：全指標トップレンジ<br>
+      75点以上：高水準<br>
+      65点以上：標準以上<br>
+      55点以上：改善余地あり<br>
+      55点未満：要因分析を推奨
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec-label">よくある質問</div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">🔒 データはどこに保存される？</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      すべてのデータはお使いのデバイスのブラウザ（localStorage）に保存されます。<br><br>
+      サーバーへの送信・外部への共有は一切行いません。ブラウザのデータを削除するとデータが消えるため、定期的にエクスポートでバックアップすることを推奨します。
+    </div>
+  </div>
+
+  <div class="help-item">
+    <div class="help-item-hdr" onclick="toggleHelp(this)">
+      <div class="help-item-title">📱 スマホのホーム画面に追加できる？</div>
+      <span class="help-item-arrow">▼</span>
+    </div>
+    <div class="help-item-body">
+      PWA（プログレッシブウェブアプリ）対応のため、ホーム画面に追加してアプリとして利用できます。<br><br>
+      <b style="color:var(--text);">iPhoneの場合：</b><br>
+      Safariで開く → 共有ボタン → 「ホーム画面に追加」<br><br>
+      <b style="color:var(--text);">Androidの場合：</b><br>
+      Chromeで開く → メニュー → 「ホーム画面に追加」
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text3);">
+    アドバイザーAria v5.0<br>Powered by Claude AI
+  </div>
+</div>
+
+<!-- ══════════ FLOATING TWEET BUTTON ══════════ -->
+<button class="fab-tweet" id="fabTweet" onclick="openTweetModal()" title="今日の結果をXに投稿">𝕏</button>
+
+<!-- ══════════ TWEET MODAL ══════════ -->
+<div class="tweet-modal-overlay" id="tweetModalOverlay" onclick="closeTweetModal(event)">
+  <div class="tweet-modal">
+    <div class="tweet-modal-handle"></div>
+    <div class="tweet-modal-title">📊 今日の結果をXに投稿</div>
+    <div class="tweet-modal-sub" id="tweetModalSub">最新の日報データを使用</div>
+
+    <div id="tweetModalContent">
+      <div class="tweet-preview" id="tweetModalPreview"></div>
+      <div class="tweet-char" id="tweetModalChar">0 / 140文字</div>
+      <div class="tweet-action-row">
+        <button class="tweet-copy-btn" onclick="fabCopyTweet()">📋 コピー</button>
+        <button class="tweet-post-btn" onclick="fabPostTweet()">𝕏 Xに投稿する</button>
+      </div>
+    </div>
+
+    <button class="tweet-modal-close" onclick="document.getElementById('tweetModalOverlay').classList.remove('open')">閉じる</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="navHome" onclick="showPage('Home')">
+    <span class="nav-icon">🏠</span><span class="nav-label">ホーム</span>
+  </button>
+  <button class="nav-btn" id="navReport" onclick="showPage('Report')">
+    <span class="nav-icon">📝</span><span class="nav-label">日報</span>
+  </button>
+  <button class="nav-btn" id="navInvest" onclick="showPage('Invest')">
+    <span class="nav-icon">📈</span><span class="nav-label">投資</span>
+  </button>
+  <button class="nav-btn" id="navCalendar" onclick="showPage('Calendar')">
+    <span class="nav-icon">📅</span><span class="nav-label">記録</span>
+  </button>
+  <button class="nav-btn" id="navHelp" onclick="showPage('Help')">
+    <span class="nav-icon">❓</span><span class="nav-label">ヘルプ</span>
+  </button>
+  <button class="nav-btn" id="navSettings" onclick="showPage('Settings')">
+    <span class="nav-icon">⚙️</span><span class="nav-label">設定</span>
+  </button>
+</nav>
+
+<script>
+// ── SETTINGS ──
+var BUDGET = parseInt(localStorage.getItem('aria_budget') || '3000');
+var INV_ASSET = parseInt(localStorage.getItem('aria_asset') || '0');
+var INV_MONTHLY = parseInt(localStorage.getItem('aria_monthly') || '10');
+var FIRE_TARGET = parseInt(localStorage.getItem('aria_fire_target') || '5000');
+var USER_AGE = parseInt(localStorage.getItem('aria_age') || '30');
+
+var now = new Date();
+var reportDate = new Date();
+var tw1 = '', tw2 = '';
+var tw1Types = { diary:'', knowledge:'', bias:'' };
+var calYear = now.getFullYear();
+var calMonth = now.getMonth();
+
+function saveBudget(){
+  BUDGET = parseInt(document.getElementById('budgetSetting').value) || 3000;
+  localStorage.setItem('aria_budget', BUDGET);
+  updateBudgetUI();
+}
+function saveInvSettings(){
+  INV_ASSET = parseInt(document.getElementById('assetSetting').value) || 0;
+  INV_MONTHLY = parseInt(document.getElementById('monthlySetting').value) || 30;
+  FIRE_TARGET = parseInt(document.getElementById('fireSetting').value) || 5000;
+  USER_AGE = parseInt(document.getElementById('ageSetting').value) || 33;
+  localStorage.setItem('aria_asset', INV_ASSET);
+  localStorage.setItem('aria_monthly', INV_MONTHLY);
+  localStorage.setItem('aria_fire_target', FIRE_TARGET);
+  localStorage.setItem('aria_age', USER_AGE);
+  renderInvest();
+  renderFireMilestones();
+}
+function resetAllData(){
+  if(!confirm('本当に全データを削除しますか？この操作は元に戻せません。')) return;
+  var keys = [];
+  for(var i=0;i<localStorage.length;i++){
+    var k = localStorage.key(i);
+    if(k && k.indexOf('aria_')===0 && k !== 'aria_budget' && k !== 'aria_asset' && k !== 'aria_monthly' && k !== 'aria_fire_target' && k !== 'aria_age') keys.push(k);
+  }
+  keys.forEach(function(k){ localStorage.removeItem(k); });
+  alert('データをリセットしました。');
+  renderHome();
+}
+
+// ── DATE HELPERS ──
+function toYMD(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dateKey(d){ return toYMD(d); }
+function formatDateLabel(d){ return d.toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric',weekday:'short'}); }
+
+// ── INIT ──
+function initApp(){
+  var inp = document.getElementById('reportDateInp');
+  if(inp){ inp.value = toYMD(now); inp.max = toYMD(now); updateDateBtn(now); }
+  document.getElementById('budgetSetting').value = BUDGET;
+  document.getElementById('assetSetting').value = INV_ASSET;
+  document.getElementById('monthlySetting').value = INV_MONTHLY;
+  document.getElementById('fireSetting').value = FIRE_TARGET;
+  document.getElementById('ageSetting').value = USER_AGE;
+  updateBudgetUI();
+  initRows();
+  initTips();
+  initInvestCheck();
+  initSettingRows();
+  renderHome();
+  renderInvest();
+  loadCheckState();
+}
+window.addEventListener('DOMContentLoaded', initApp);
+
+function updateBudgetUI(){
+  var bl = document.getElementById('budgetLabel');
+  var bsl = document.getElementById('budgetSubLabel');
+  var el = document.getElementById('expDisp');
+  if(bl) bl.textContent = '¥'+BUDGET.toLocaleString();
+  if(bsl) bsl.textContent = '予算¥'+BUDGET.toLocaleString()+' ※家賃・光熱費・妻生活費除く';
+  calcTotal();
+}
+
+// ── ROWS ──
+// initRows・createRowはMF準拠版（下部）を使用
+
+function updateDateBtn(d){
+  var label = d.toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
+  document.getElementById('dateBtnLabel').textContent = '📅 '+label+' ▾';
+}
+function onDateChange(){
+  var val = document.getElementById('reportDateInp').value;
+  if(!val) return;
+  var p = val.split('-');
+  reportDate = new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  updateDateBtn(reportDate);
+  if(loadRecord(toYMD(reportDate))){
+    if(!confirm('この日の記録が既にあるよ。上書きする？')){
+      reportDate = new Date(now);
+      document.getElementById('reportDateInp').value = toYMD(now);
+      updateDateBtn(now);
+    }
+  }
+}
+
+// ── STORAGE ──
+function saveRecord(rec){ localStorage.setItem('aria_'+rec.dateKey, JSON.stringify(rec)); }
+function loadRecord(dk){ var v=localStorage.getItem('aria_'+dk); return v?JSON.parse(v):null; }
+function getAllRecords(){
+  var recs=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf('aria_2')===0){ try{recs.push(JSON.parse(localStorage.getItem(k)));}catch(e){} }
+  }
+  return recs.sort(function(a,b){ return b.dateKey.localeCompare(a.dateKey); });
+}
+
+// ── EXPORT / IMPORT ──
+function exportData(){
+  var recs = getAllRecords();
+  var data = JSON.stringify({version:2, exportedAt:new Date().toISOString(), records:recs}, null, 2);
+  var blob = new Blob([data],{type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'aria_backup_'+toYMD(now)+'.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(input){
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var data = JSON.parse(e.target.result);
+      var recs = data.records || [];
+      var count = 0;
+      recs.forEach(function(r){ if(r.dateKey){ localStorage.setItem('aria_'+r.dateKey, JSON.stringify(r)); count++; } });
+      alert(count+'件のデータを復元しました。');
+      renderHome(); renderCalendar();
+    }catch(err){ alert('インポートに失敗しました。ファイル形式を確認してください。'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ── STREAK ──
+function calcStreak(){
+  var streak = 0;
+  var check = new Date(now);
+  for(var i=0;i<365;i++){
+    var k = toYMD(check);
+    var rec = loadRecord(k);
+    if(rec && rec.achieved){ streak++; }
+    else if(i>0){ break; }
+    check.setDate(check.getDate()-1);
+  }
+  return streak;
+}
+
+// ── HOME ──
+function renderHome(){
+  var recs = getAllRecords();
+  var streak = calcStreak();
+
+  // Streak banner
+  var banner = document.getElementById('streakBanner');
+  if(streak>=2){
+    document.getElementById('streakNum').textContent = streak;
+    var msgs = ['継続日数がデータの信頼性を高める。このまま継続を。','行動の一貫性は、最も価値ある資産の一つだ。','習慣化のしきい値を超えた。継続コストは逓減していく。','データポイントが積み上がるほど、Ariaの精度が上がる。'];
+    document.getElementById('streakSub').textContent = msgs[Math.min(streak-2,msgs.length-1)];
+    banner.style.display='flex';
+  } else { banner.style.display='none'; }
+
+  // KPI
+  var todayRec = loadRecord(toYMD(now));
+  document.getElementById('kpiTodayBudget').innerHTML = '¥'+(todayRec?todayRec.net.toLocaleString():0)+'<span>/ 本日</span>';
+  document.getElementById('kpiStreak').innerHTML = streak+'<span>日</span>';
+
+  var ago30 = new Date(now); ago30.setDate(ago30.getDate()-30);
+  var total30=0,ach30=0,totalScore=0,scoreCount=0;
+  recs.forEach(function(r){
+    var d=new Date(r.dateKey);
+    if(d>=ago30){ total30++; if(r.achieved) ach30++; totalScore+=r.score; scoreCount++; }
+  });
+  var achRate = total30>0?Math.round(ach30/total30*100):0;
+  var avgScore = scoreCount>0?Math.round(totalScore/scoreCount):0;
+  document.getElementById('kpiMonthAch').innerHTML = achRate+'<span>%</span>';
+  document.getElementById('kpiAvgScore').innerHTML = avgScore+'<span>点</span>';
+
+  // Hero message
+  var heroMsgs = [
+    '行動経済学の観点から言えば、投資判断の頻度と損失は正比例する。今日も記録を。',
+    '複利の本質は時間にある。早く始め、長く続けることが最も確実な資産形成戦略だ。',
+    'プロファンドの80%以上が長期でインデックスに負ける。個人が勝つ唯一の方法は「判断しないこと」。',
+    '相場の短期変動は情報ではなくノイズだ。データが示す最適解は、淡々と積み立てること。',
+    '支出の最適化は、投資リターンの向上と等価だ。今日の記録が資産形成の精度を上げる。',
+  ];
+  document.getElementById('heroMsg').textContent = heroMsgs[Math.floor(Math.random()*heroMsgs.length)];
+
+  // 支出グラフ（直近10日）
+  renderHomeChart(recs);
+
+  // FIRE マイルストーン
+  renderFireMilestones();
+
+  // FAB更新
+  updateFab();
+}
+  var chart = document.getElementById('homeBarChart');
+  chart.innerHTML = '';
+  var days = [];
+  for(var i=9;i>=0;i--){
+    var d = new Date(now); d.setDate(d.getDate()-i);
+    days.push(d);
+  }
+  var maxNet = 0;
+  var data = days.map(function(d){
+    var rec = loadRecord(toYMD(d));
+    var net = rec ? rec.net : 0;
+    if(net > maxNet) maxNet = net;
+    return { d:d, net:net, achieved: rec ? rec.achieved : null };
+  });
+  if(maxNet === 0) maxNet = BUDGET;
+  data.forEach(function(item){
+    var col = document.createElement('div');
+    col.className = 'bar-col';
+    var barH = Math.max(4, Math.round(item.net / maxNet * 70));
+    var bar = document.createElement('div');
+    bar.className = 'bar-inner ' + (item.achieved === false ? 'over' : 'ok');
+    bar.style.height = barH + 'px';
+    if(item.achieved === null) bar.style.opacity = '0.2';
+    var label = document.createElement('div');
+    label.className = 'bar-day';
+    label.textContent = (item.d.getMonth()+1)+'/'+(item.d.getDate());
+    col.appendChild(bar);
+    col.appendChild(label);
+    chart.appendChild(col);
+  });
+}
+
+function renderFireMilestones(){
+  var milestones = [
+    { label:'3,000万', target:3000, icon:'🌱' },
+    { label:'5,000万', target:5000, icon:'🌿' },
+    { label:FIRE_TARGET+'万', target:FIRE_TARGET, icon:'🔥' },
+  ];
+  var container = document.getElementById('fireMilestones');
+  var ageLabel = document.getElementById('fireAgeLabel');
+  container.innerHTML = '';
+
+  // FIRE達成予測年齢（4%想定・万円単位）
+  var current = INV_ASSET;
+  var monthly = INV_MONTHLY;
+  var rate = 0.04/12;
+  var months = 0;
+  while(current < FIRE_TARGET && months < 600){
+    current = current*(1+rate) + monthly;
+    months++;
+  }
+  var fireAge = USER_AGE + Math.floor(months/12);
+  ageLabel.textContent = '達成予測：' + fireAge + '歳';
+
+  milestones.forEach(function(m){
+    var pct = Math.min(100, Math.round(INV_ASSET / m.target * 100));
+    var color = pct >= 100 ? '#34d399' : pct >= 60 ? '#60a5fa' : '#a78bfa';
+    var div = document.createElement('div');
+    div.className = 'milestone';
+    div.innerHTML = '<span class="milestone-icon">'+m.icon+'</span><div class="milestone-bar-bg"><div class="milestone-bar" style="width:'+pct+'%;background:'+color+';"></div></div><span class="milestone-label">'+m.label+' ('+pct+'%)</span>';
+    container.appendChild(div);
+  });
+}
+
+// ── SETTING ROWS（資産内訳・積立配分・チェックリスト）──
+function initSettingRows(){
+  // 資産内訳
+  var breakdown = JSON.parse(localStorage.getItem('aria_breakdown') || '[]');
+  var bContainer = document.getElementById('assetBreakdownRows');
+  bContainer.innerHTML = '';
+  if(breakdown.length === 0){
+    bContainer.appendChild(createBreakdownRow('',''));
+  } else {
+    breakdown.forEach(function(b){ bContainer.appendChild(createBreakdownRow(b.label, b.amount)); });
+  }
+
+  // 積立配分
+  var allocation = JSON.parse(localStorage.getItem('aria_allocation') || '[]');
+  var aContainer = document.getElementById('allocationRows');
+  aContainer.innerHTML = '';
+  if(allocation.length === 0){
+    aContainer.appendChild(createAllocationRow('',''));
+  } else {
+    allocation.forEach(function(a){ aContainer.appendChild(createAllocationRow(a.label, a.amount)); });
+  }
+
+  // チェックリスト
+  var checklist = JSON.parse(localStorage.getItem('aria_checklist') || '[]');
+  var cContainer = document.getElementById('checklistRows');
+  cContainer.innerHTML = '';
+  if(checklist.length === 0){
+    cContainer.appendChild(createChecklistRow('',''));
+  } else {
+    checklist.forEach(function(c){ cContainer.appendChild(createChecklistRow(c.main, c.sub)); });
+  }
+}
+
+function createBreakdownRow(label, amount){
+  var div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 100px 32px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = '<input class="iline" type="text" placeholder="例：投資信託" value="'+label+'" style="padding:8px 10px;font-size:12px;">'
+    +'<input class="iamt" type="number" placeholder="0" value="'+(amount||'')+'" style="font-size:12px;" min="0">'
+    +'<button onclick="this.parentNode.remove()" style="width:32px;height:32px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:6px;color:var(--red);font-size:14px;cursor:pointer;">×</button>';
+  return div;
+}
+function createAllocationRow(label, amount){
+  var div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 32px;gap:6px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = '<input class="iline" type="text" placeholder="例：S&P500（NISA）" value="'+label+'" style="padding:8px 10px;font-size:12px;">'
+    +'<div style="display:flex;align-items:center;gap:4px;"><input class="iamt" type="number" placeholder="0" value="'+(amount||'')+'" style="font-size:12px;width:55px;" min="0"><span style="font-size:11px;color:var(--text2);">万</span></div>'
+    +'<button onclick="this.parentNode.remove()" style="width:32px;height:32px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:6px;color:var(--red);font-size:14px;cursor:pointer;">×</button>';
+  return div;
+}
+function createChecklistRow(main, sub){
+  var div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:10px;';
+  div.innerHTML = '<div style="display:flex;gap:6px;margin-bottom:4px;">'
+    +'<input class="iline" type="text" placeholder="タスク名（例：積立確認）" value="'+main+'" style="padding:8px 10px;font-size:12px;flex:1;">'
+    +'<button onclick="this.parentNode.parentNode.remove()" style="width:32px;height:32px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:6px;color:var(--red);font-size:14px;cursor:pointer;flex-shrink:0;">×</button>'
+    +'</div>'
+    +'<input class="iline" type="text" placeholder="補足説明（任意）" value="'+sub+'" style="padding:8px 10px;font-size:11px;color:var(--text2);">';
+  return div;
+}
+
+function addAssetRow(){ document.getElementById('assetBreakdownRows').appendChild(createBreakdownRow('','')); }
+function addAllocationRow(){ document.getElementById('allocationRows').appendChild(createAllocationRow('','')); }
+function addChecklistRow(){ document.getElementById('checklistRows').appendChild(createChecklistRow('','')); }
+
+function saveAssetBreakdown(){
+  var rows = document.querySelectorAll('#assetBreakdownRows > div');
+  var data = [];
+  rows.forEach(function(row){
+    var inputs = row.querySelectorAll('input');
+    var label = inputs[0].value.trim();
+    var amount = parseInt(inputs[1].value) || 0;
+    if(label) data.push({label:label, amount:amount});
+  });
+  localStorage.setItem('aria_breakdown', JSON.stringify(data));
+  renderInvest();
+  alert('資産内訳を保存しました。');
+}
+function saveAllocation(){
+  var rows = document.querySelectorAll('#allocationRows > div');
+  var data = [];
+  rows.forEach(function(row){
+    var inputs = row.querySelectorAll('input');
+    var label = inputs[0].value.trim();
+    var amount = parseInt(inputs[1].value) || 0;
+    if(label) data.push({label:label, amount:amount});
+  });
+  localStorage.setItem('aria_allocation', JSON.stringify(data));
+  renderInvest();
+  alert('積立配分を保存しました。');
+}
+function saveChecklist(){
+  var rows = document.querySelectorAll('#checklistRows > div');
+  var data = [];
+  rows.forEach(function(row){
+    var inputs = row.querySelectorAll('input');
+    var main = inputs[0].value.trim();
+    var sub = inputs[1] ? inputs[1].value.trim() : '';
+    if(main) data.push({main:main, sub:sub});
+  });
+  localStorage.setItem('aria_checklist', JSON.stringify(data));
+  renderChecklistInvest();
+  alert('チェックリストを保存しました。');
+}
+
+// ── チェックリスト（投資タブ）レンダリング ──
+function renderChecklistInvest(){
+  var checklist = JSON.parse(localStorage.getItem('aria_checklist') || '[]');
+  var card = document.getElementById('checklistCard');
+  var empty = document.getElementById('checklistEmpty');
+  card.innerHTML = '';
+  if(checklist.length === 0){
+    var emptyDiv = document.createElement('div');
+    emptyDiv.style.cssText = 'text-align:center;padding:20px;font-size:12px;color:var(--text2);';
+    emptyDiv.textContent = '設定画面からチェックリストを登録してください';
+    card.appendChild(emptyDiv);
+    return;
+  }
+  var monthKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  checklist.forEach(function(c, i){
+    var id = 'dyncheck'+i;
+    var key = 'aria_check_'+monthKey+'_dyn'+i;
+    var isDone = localStorage.getItem(key) === '1';
+    var item = document.createElement('div');
+    item.className = 'check-item' + (isDone?' done':'');
+    item.id = id;
+    item.innerHTML = '<div class="check-box">'+(isDone?'✓':'')+'</div>'
+      +'<div><div class="check-main">'+c.main+'</div>'+(c.sub?'<div class="check-sub">'+c.sub+'</div>':'')+'</div>';
+    item.onclick = (function(itemEl, k){ return function(){
+      itemEl.classList.toggle('done');
+      var box = itemEl.querySelector('.check-box');
+      var done = itemEl.classList.contains('done');
+      box.textContent = done ? '✓' : '';
+      localStorage.setItem(k, done?'1':'0');
+    };})(item, key);
+    card.appendChild(item);
+  });
+}
+
+// ── 投資タブ レンダリング更新 ──
+function renderInvest(){
+  var scenarios = [
+    { rate:0.06, elId:'sim6', ageId:'simAge6' },
+    { rate:0.04, elId:'sim4', ageId:'simAge4' },
+    { rate:0.02, elId:'sim2', ageId:'simAge2' },
+  ];
+  scenarios.forEach(function(s){
+    var current = INV_ASSET * 10000;
+    var monthly = INV_MONTHLY * 10000;
+    var r = s.rate/12;
+    var months = 0;
+    while(current < FIRE_TARGET*10000 && months < 600){
+      current = current*(1+r) + monthly;
+      months++;
+    }
+    var age = USER_AGE + Math.floor(months/12);
+    var yrs5 = INV_ASSET*10000*Math.pow(1+s.rate,5) + monthly*12*(Math.pow(1+s.rate,5)-1)/s.rate;
+    document.getElementById(s.elId).textContent = Math.round(yrs5/10000)+'万';
+    document.getElementById(s.ageId).textContent = months < 600 ? 'FIRE: '+age+'歳' : '600ヶ月超';
+  });
+
+  var simTitle = document.getElementById('simTitle');
+  if(simTitle) simTitle.textContent = '🔥 FIREシミュレーター（月'+INV_MONTHLY+'万積立）';
+  var fireLabel = document.getElementById('fireTargetLabel');
+  if(fireLabel) fireLabel.textContent = 'FIRE目標：'+FIRE_TARGET+'万円';
+
+  var invTotal = document.getElementById('invTotal');
+  if(invTotal) invTotal.innerHTML = INV_ASSET > 0 ? '¥'+(INV_ASSET*10000).toLocaleString()+'<span>円</span>' : '設定から総資産を入力<span></span>';
+  var invGain = document.getElementById('invGain');
+  if(invGain) invGain.textContent = INV_ASSET > 0 ? '月'+INV_MONTHLY+'万円積立 | FIRE目標'+FIRE_TARGET+'万円' : '設定からパラメーターを入力してください';
+
+  var breakdown = JSON.parse(localStorage.getItem('aria_breakdown') || '[]');
+  var invRows = document.getElementById('invRows');
+  if(invRows){
+    invRows.innerHTML = '';
+    breakdown.forEach(function(b){
+      var row = document.createElement('div');
+      row.className = 'inv-row';
+      row.innerHTML = '<span class="inv-row-label">📊 '+b.label+'</span><span class="inv-row-val">'+(b.amount>0?'¥'+(b.amount*10000).toLocaleString():'−')+'</span>';
+      invRows.appendChild(row);
+    });
+  }
+
+  var allocation = JSON.parse(localStorage.getItem('aria_allocation') || '[]');
+  var allocationList = document.getElementById('allocationList');
+  if(allocationList){
+    if(allocation.length === 0){
+      allocationList.innerHTML = '<div style="text-align:center;padding:10px;font-size:12px;color:var(--text2);">設定画面から積立配分を登録してください</div>';
+    } else {
+      allocationList.innerHTML = '';
+      var total = allocation.reduce(function(s,a){ return s+(a.amount||0); },0);
+      allocation.forEach(function(a){
+        var row = document.createElement('div');
+        row.className = 'inv-row';
+        row.innerHTML = '<span class="inv-row-label">'+a.label+'</span><span class="inv-row-val">'+a.amount+'万円</span>';
+        allocationList.appendChild(row);
+      });
+      if(total > 0){
+        var totalRow = document.createElement('div');
+        totalRow.className = 'inv-row';
+        totalRow.style.cssText = 'border-top:1px solid var(--border);padding-top:8px;margin-top:4px;';
+        totalRow.innerHTML = '<span class="inv-row-label" style="font-weight:700;color:var(--text);">合計</span><span class="inv-row-val" style="color:var(--green);">'+total+'万円/月</span>';
+        allocationList.appendChild(totalRow);
+      }
+    }
+  }
+
+  renderChecklistInvest();
+}
+
+// ── CHECKLIST ──
+function loadCheckState(){
+  // 動的チェックリストはrenderChecklistInvestで処理
+}
+function toggleCheck(id){
+  var el = document.getElementById(id);
+  el.classList.toggle('done');
+  var num = id.replace('check','');
+  var monthKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var key = 'aria_check_'+monthKey+'_'+num;
+  localStorage.setItem(key, el.classList.contains('done')?'1':'0');
+}
+
+// ── NAV ──
+function showPage(name){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page'+name).classList.add('active');
+  document.getElementById('nav'+name).classList.add('active');
+  if(name==='Calendar') renderCalendar();
+  if(name==='Home') renderHome();
+  if(name==='Invest') renderInvest();
+}
+
+// ── カテゴリ定義（MF準拠 大分類→中分類）──
+var CATEGORIES = {
+  '🍚 食費':       ['食料品','外食','カフェ・喫茶','お菓子・デザート','宅配・デリバリー'],
+  '🏠 日用品':     ['消耗品','掃除用品','洗剤・柔軟剤','キッチン用品','その他日用品'],
+  '👔 衣服・美容': ['衣服','クリーニング','美容院・理髪','化粧品','アクセサリー'],
+  '🚃 交通費':     ['電車・バス','タクシー','新幹線・特急','自転車・シェアサイクル','その他交通'],
+  '🎮 趣味・娯楽': ['映画・音楽・ゲーム','本・雑誌','スポーツ・アウトドア','旅行','その他趣味'],
+  '💊 健康・医療': ['病院・診察','薬・サプリ','フィットネス','ボディケア・マッサージ','その他医療'],
+  '📱 通信':       ['携帯電話','インターネット','サブスク','その他通信'],
+  '👶 子育て・教育':['保育園・幼稚園','学費・塾','おもちゃ・絵本','子供服','その他子育て'],
+  '🎁 交際費':     ['飲み会','プレゼント','冠婚葬祭','会費','その他交際'],
+  '🛋️ 特別支出':  ['家具・家電','引越し・住居','旅行・レジャー','医療機器','その他特別'],
+  '🛍️ その他':    ['コンビニ','ドラッグストア','その他'],
+};
+
+function createRow(){
+  var div = document.createElement('div');
+  div.className = 'item-grid-3';
+
+  // 大分類セレクト
+  var bigSel = document.createElement('select');
+  bigSel.className = 'icat';
+  bigSel.innerHTML = '<option value="">大分類</option>';
+  Object.keys(CATEGORIES).forEach(function(k){
+    var opt = document.createElement('option');
+    opt.value = k; opt.textContent = k;
+    bigSel.appendChild(opt);
+  });
+
+  // 中分類セレクト
+  var subSel = document.createElement('select');
+  subSel.className = 'icat';
+  subSel.innerHTML = '<option value="">中分類</option>';
+
+  // 大分類変更で中分類を動的更新
+  bigSel.onchange = function(){
+    subSel.innerHTML = '<option value="">中分類</option>';
+    var subs = CATEGORIES[bigSel.value] || [];
+    subs.forEach(function(s){
+      var opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      subSel.appendChild(opt);
+    });
+    calcTotal();
+  };
+  subSel.onchange = calcTotal;
+
+  // 金額
+  var amt = document.createElement('input');
+  amt.className = 'iamt'; amt.type = 'number';
+  amt.placeholder = '0'; amt.min = '0';
+  amt.oninput = calcTotal;
+
+  div.appendChild(bigSel);
+  div.appendChild(subSel);
+  div.appendChild(amt);
+  return div;
+}
+
+function initRows(){
+  var container = document.getElementById('iRows');
+  container.innerHTML = '';
+  for(var i=0;i<2;i++) container.appendChild(createRow());
+}
+function addRow(){ document.getElementById('iRows').appendChild(createRow()); }
+
+function getItems(){
+  var rows = document.querySelectorAll('#iRows .item-grid-3');
+  var items = [];
+  rows.forEach(function(row){
+    var sels = row.querySelectorAll('select');
+    var amt = row.querySelector('input');
+    var big = sels[0] ? sels[0].value : '';
+    var sub = sels[1] ? sels[1].value : '';
+    var v = parseInt(amt ? amt.value : 0);
+    if((big || sub) && v > 0){
+      var label = sub ? sub : big;
+      items.push({cat: label, big: big, sub: sub, amt: v});
+    }
+  });
+  return items;
+}
+
+// ── 投資・資産形成の金言 30パターン ──
+var ARIA_WISDOM = [
+  '「株式市場はせっかちな人から忍耐強い人へお金を移す装置だ」―ウォーレン・バフェット。今日も積立継続がベストアクションだ。',
+  '「複利は世界第八の不思議だ。理解している者はそれを稼ぎ、理解していない者はそれを払う」―アルベルト・アインシュタイン（伝）。',
+  '時間は最も強力な投資ツールだ。30代で始めた積立は、40代で始めるより2倍以上の効果を生む。今日の積立が最も価値がある。',
+  '「市場を予測しようとするよりも、市場に居続けることの方が重要だ」―ジョン・ボーグル。インデックス投資の本質はここにある。',
+  '行動経済学の研究が示す事実：投資ポートフォリオを確認する頻度が高いほど、リターンは低下する傾向にある。見ないことも戦略だ。',
+  '「リスクは、自分が何をしているかわからないときに生まれる」―ウォーレン・バフェット。インデックス積立は「わかっている」戦略だ。',
+  '分散投資の数学的根拠：相関のない資産を組み合わせることで、リターンを維持しながらリスクを低減できる。ポートフォリオ理論の核心だ。',
+  '「遠くの1ドルは、近くの1ドルより価値が低い」―現在価値の原則。逆に言えば、今日投資した1万円は将来の数倍の価値を持つ。',
+  '研究データ：過去100年間のS&P500の平均年利回りは約10%。インフレ調整後でも約7%。長期保有の優位性は歴史が証明している。',
+  '「相場の底を正確に当てた人間はいない。しかし長期で持ち続けた人間は皆、報われた」―長期投資の鉄則。タイミングより時間が重要だ。',
+  '資産形成の方程式はシンプルだ：収入 − 支出 = 投資額。支出の最適化は、利回り改善と等価の効果を持つ。',
+  '「最良の投資は自分自身への投資だ」―ウォーレン・バフェット。しかし金融資産への投資なしに経済的自由は達成できない。',
+  'ドルコスト平均法の効果：定期的に一定額を投資することで、高値掴みのリスクを分散できる。感情を排除した最も合理的な手法だ。',
+  '「投資で最も重要なのは、損失を避けることだ」―ウォーレン・バフェット。インデックス積立は最大の損失リスク＝「退場」を防ぐ設計だ。',
+  '行動経済学：損失の痛みは、同額の利益の喜びの2倍強く感じられる（損失回避バイアス）。この非合理性を自動積立で排除することが賢明だ。',
+  '「金持ちは資産を買い、貧乏人は負債を買う」―ロバート・キヨサキ。今日の支出記録は、資産と負債を見極める訓練でもある。',
+  '「市場が暴落したとき、賢明な投資家は喜ぶ。セールで株が買えるからだ」―ウォーレン・バフェット。下落は積立投資家への恩恵だ。',
+  '72の法則：元本が2倍になるまでの年数 ＝ 72 ÷ 利回り。4%なら18年、6%なら12年。複利の威力を数値で実感せよ。',
+  '「投資の最大の敵は感情だ」―ベンジャミン・グレアム。自動積立はこの問題に対する最もエレガントな解決策だ。',
+  '資産形成の三原則：①早く始める、②続ける、③手数料を最小化する。この3点を守れば、特別な才能は不要だ。',
+  '「株式市場は短期では投票機、長期では体重計だ」―ベンジャミン・グレアム。短期の変動に惑わされず、長期の価値に集中せよ。',
+  '研究データ：アクティブファンドの約80%が10年間でインデックスファンドに負ける。「選択しない」ことが最良の選択である理由がここにある。',
+  '「財産を失っても立ち直れる。しかし時間だけは取り戻せない」―時間の非可逆性。今日始めることの価値は、明日始めることより必ず高い。',
+  '生活防衛資金の設計思想：投資のリスクを取れるのは、生活費6ヶ月分のバッファがある場合だ。資金管理の優先順位を誤るな。',
+  '「相場が気になって夜眠れないなら、持ちすぎだ」―ピーター・リンチ。リスク許容度に合った配分が、長期継続の基盤になる。',
+  '経済的自由の定義：不労所得 > 生活費。FIRE達成とはこの等式を成立させることだ。シンプルな目標だが、達成には規律と時間が必要だ。',
+  '「予算とは、あなたがお金をどこへ行かせるかを決めること。そうしなければ、お金はどこかへ消えていく」―デイブ・ラムジー。',
+  '支出の記録は投資の前提条件だ。キャッシュフローを把握していない状態で投資を語るのは、地図なしに航海するに等しい。',
+  '「忍耐力は投資における最も希少な才能だ」―チャーリー・マンガー。今日何もしなかったことが、最も賢明な行動かもしれない。',
+  '資産形成の複利効果は非線形だ。最初の10年は遅く感じるが、20年・30年後に加速度的に増大する。諦める者だけが複利を享受できない。',
+];
+
+// ── C変数・pickComment・getEvalは上部の新版を使用 ──
+
+var BUDGET_TIPS = [
+  '📊 予算遵守率が高い月ほど、翌月の投資余力が拡大する。複利効果と相まって資産形成が加速する。',
+  '📊 外食1回の削減（平均¥1,200）を月3回実行すれば、年間¥43,200の追加投資が可能になる。',
+  '📊 支出記録の継続は、行動経済学上「モニタリング効果」として節約行動を15〜20%改善するとされている。',
+  '📊 コンビニの衝動購入は「現在バイアス」の典型例。事前に購入品を決めることで回避できる。',
+  '📊 支出の記録を続けることで、無意識の出費パターンが可視化され、改善の糸口が見えてくる。',
+];
+var PRAISE_TIPS = [
+  '📌 自己評価の言語化は、心理学上「実装意図（Implementation Intention）」として目標達成率を高める。',
+  '📌 小さな成功体験の記録は、自己効力感（Self-Efficacy）を強化し、行動継続の基盤となる。',
+  '📌 「できたこと」に意識を向けることで、行動の正のフィードバックループが形成される。',
+];
+function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function initTips(){
+  var bt = document.getElementById('budgetTip');
+  var pt = document.getElementById('praiseTip');
+  if(bt){ bt.textContent = rnd(BUDGET_TIPS); bt.style.display='block'; }
+  if(pt){ pt.textContent = rnd(PRAISE_TIPS); pt.style.display='block'; }
+}
+
+// ── FORM ──
+function selMood(btn){
+  document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+function selScore(btn){
+  document.querySelectorAll('.sbtn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// 積立確認UIを日報に表示
+function initInvestCheck(){
+  var wrap = document.getElementById('investCheckWrap');
+  if(!wrap) return;
+  var checklist = JSON.parse(localStorage.getItem('aria_checklist') || '[]');
+  wrap.innerHTML = '';
+  if(checklist.length === 0){
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--text2);padding:8px 0;">設定タブからチェックリストを登録してください。</div>';
+    return;
+  }
+  checklist.forEach(function(c, i){
+    var id = 'rcheck_'+i;
+    var item = document.createElement('div');
+    item.className = 'check-item';
+    item.id = id;
+    item.innerHTML = '<div class="check-box"></div>'
+      +'<div><div class="check-main">'+c.main+'</div>'+(c.sub?'<div class="check-sub">'+c.sub+'</div>':'')+'</div>';
+    item.onclick = (function(el){ return function(){
+      el.classList.toggle('done');
+      var box = el.querySelector('.check-box');
+      box.textContent = el.classList.contains('done') ? '✓' : '';
+    };})(item);
+    wrap.appendChild(item);
+  });
+}
+
+function getInvestChecks(){
+  var items = document.querySelectorAll('#investCheckWrap .check-item');
+  var result = [];
+  items.forEach(function(el){
+    result.push({ main: el.querySelector('.check-main').textContent, done: el.classList.contains('done') });
+  });
+  return result;
+}
+
+function calcTotal(){
+  var items = getItems();
+  var total = items.reduce(function(s,i){ return s+i.amt; },0);
+  var income = parseInt(document.getElementById('incomeInp').value)||0;
+  var net = total - income;
+  var pct = Math.min(net/BUDGET*100,100);
+  var isOver = net > BUDGET;
+  document.getElementById('expDisp').textContent = '¥'+net.toLocaleString()+' / ¥'+BUDGET.toLocaleString();
+  var bar = document.getElementById('mBar');
+  bar.style.width = pct+'%';
+  if(isOver){ bar.classList.add('over'); } else { bar.classList.remove('over'); }
+  var remain = BUDGET - net;
+  var rl = document.getElementById('remainLbl');
+  rl.textContent = remain>=0 ? '残り ¥'+remain.toLocaleString() : '超過 ¥'+Math.abs(remain).toLocaleString();
+  rl.className = 'remain-lbl' + (remain<0?' over':'');
+}
+
+// ── TWEET TYPES ──
+function buildDiaryTweet(net,praise,income,items,shortDate){
+  var achieved = net<=BUDGET?'達成🙋':'未達成💦';
+  var diffLabel = (BUDGET-net)>=0?'+¥'+(BUDGET-net).toLocaleString():'△¥'+Math.abs(BUDGET-net).toLocaleString();
+  var netLabel = income>0?'¥'+net.toLocaleString()+'（臨時収入-¥'+income.toLocaleString()+'）':'¥'+net.toLocaleString();
+  var itemLine = items.slice(0,3).map(function(i){ return i.cat+'¥'+i.amt.toLocaleString(); }).join(' ');
+  var lines = [shortDate+' #1日予算チャレンジ '+achieved,'支出：'+netLabel];
+  if(itemLine) lines.push('内訳：'+itemLine);
+  lines.push('予算対比：'+diffLabel,'','#AIに判断を任せる投資 #資産形成 #FIRE');
+  return lines.join('\n').replace(/\n{2,}/g,'\n').trim();
+}
+function buildKnowledgeTweet(){
+  var knowledges = [
+    'データが示す事実がある\n\nプロファンドの80%以上が長期でS&P500に負ける\n\n個人投資家が市場に勝つ唯一の方法は\n「判断の回数を最小化すること」\n\n#AIに判断を任せる士業 #行動経済学 #FIRE',
+    'インデックス投資の本質は\n「何もしないこと」ではなく\n「判断しない仕組みを設計すること」\n\n相場を毎日確認することが\n最大のリスク要因になる\n\n#AIに判断を任せる士業 #インデックス投資',
+    '複利の計算式は単純だ\n\n現在資産×（1＋利率）^年数\n＋月積立×複利係数\n\n変数のうち人間がコントロールできるのは\n「積立継続」だけ。それだけを守れ\n\n#AIに判断を任せる士業 #FIRE',
+  ];
+  return rnd(knowledges);
+}
+function buildBiasTweet(){
+  var biases = [
+    '【行動経済学・過剰自信バイアス】\n\n研究結果：投資リテラシーが高いほど\n売買タイミングの誤りが増加する\n\n知識と運用成績は比例しない\n解決策は「判断しない設計」のみ\n\n#行動経済学 #AIに判断を任せる士業',
+    '【行動経済学・現在バイアス】\n\n「今」の損失回避が\n将来の利益を大きく損なう\n\n下落局面で積立を止めた投資家は\n上昇局面での回復を享受できない\n\nデータが示す最適解：何もしないこと\n\n#行動経済学 #FIRE',
+    '【行動経済学・確証バイアス】\n\n人は自分の投資判断を\n支持する情報だけを無意識に選ぶ\n\nこれを回避する唯一の方法は\n判断のプロセスをAIに委ねること\n\n#行動経済学 #AIに判断を任せる士業',
+  ];
+  return rnd(biases);
+}
+function switchTweetType(tweetNum, type, btn){
+  document.querySelectorAll('.ttype-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var text = tw1Types[type] || '';
+  setTweet(1, text);
+}
+function buildAllTweetTypes(net,praise,income,items,shortDate){
+  tw1Types.diary = buildDiaryTweet(net,praise,income,items,shortDate);
+  tw1Types.knowledge = buildKnowledgeTweet();
+  tw1Types.bias = buildBiasTweet();
+}
+
+// ── SCORE ──
+function calcScore(net, praise, stress, investDone, investTotal){
+  var s = 55;
+  if(net<=0) s+=20; else if(net<=1000) s+=18; else if(net<=2000) s+=13;
+  else if(net<=BUDGET) s+=8; else if(net<=BUDGET+500) s-=3; else s-=10;
+  if(praise && praise.length>3) s+=8; else if(praise) s+=4;
+  var st = parseInt(stress)||3;
+  if(st<=1) s+=7; else if(st===2) s+=4; else if(st===4) s-=3; else if(st>=5) s-=6;
+  // 積立確認ボーナス
+  if(investTotal > 0){
+    var rate = investDone / investTotal;
+    if(rate === 1) s += 5;
+    else if(rate >= 0.5) s += 2;
+  }
+  return Math.min(Math.max(s, 40), 100);
+}
+
+var C = {
+  result:{
+    perfect:['支出¥0。キャッシュフロー管理の理想形だ。','¥0達成。この日のデータが月次平均を引き上げる。'],
+    great:  ['予算内で着地。支出コントロールは機能している。','想定レンジ内の支出。計画通りに推移している。'],
+    ok:     ['予算内に収まった。継続的な記録が次の改善につながる。','許容範囲内の支出。データとして記録に値する。'],
+    over:   ['今日は予算を超過した。カテゴリ別に原因を分析することを推奨する。','超過したが記録した事実に意味がある。パターンを把握することが次のアクションだ。']
+  },
+  praise:['「{p}」という自己評価は、継続の燃料になる。','「{p}」を言語化したことで、再現性が生まれる。'],
+  invest:{
+    full: '積立確認を完了した。自動化された行動の一貫性が複利を最大化する。',
+    partial: '積立の一部を確認した。未確認項目も継続的にモニタリングすることを推奨する。',
+    none: '積立確認は今月中に実施することを推奨する。'
+  },
+  close:['データを積み上げることが、最も合理的な改善戦略だ。','記録を止めないことが唯一のルールだ。','一貫した行動が、長期的に最も高いリターンをもたらす。']
+};
+
+function pickComment(net, praise, investDone, investTotal){
+  var resultKey = net<=0?'perfect':net<=1500?'great':net<=BUDGET?'ok':'over';
+  var investMsg = investTotal === 0 ? '' :
+    investDone === investTotal ? C.invest.full :
+    investDone > 0 ? C.invest.partial : C.invest.none;
+  var parts = [
+    rnd(C.result[resultKey]),
+    rnd(C.praise).replace('{p}', praise),
+  ];
+  if(investMsg) parts.push(investMsg);
+  parts.push(rnd(C.close));
+  return parts.join(' ');
+}
+
+function getEval(score, net, praise, investDone, investTotal, mood, stress, items){
+  var lines = [];
+  var overAmt = net - BUDGET;
+
+  if(score>=85) lines.push(score+'点。支出・心理・行動の三軸が整合している。全指標がトップレンジにある。');
+  else if(score>=75) lines.push(score+'点。高水準の結果だ。改善余地は小さい。');
+  else if(score>=65) lines.push(score+'点。標準以上のパフォーマンス。');
+  else if(score>=55) lines.push(score+'点。改善余地がある。原因を特定することが次のステップだ。');
+  else lines.push(score+'点。今日は想定外の要因が重なったと分析する。記録した事実はデータ資産だ。');
+
+  if(net<=0){
+    lines.push('支出¥0は最高水準。月次の投資余力が最大化される。');
+  } else if(net<=BUDGET){
+    lines.push('予算¥'+BUDGET.toLocaleString()+'に対し¥'+net.toLocaleString()+'。残り¥'+(BUDGET-net).toLocaleString()+'を確保した。');
+  } else {
+    lines.push('予算を¥'+overAmt.toLocaleString()+'超過した。');
+    if(items && items.length > 0){
+      var topItem = items.reduce(function(a,b){ return a.amt > b.amt ? a : b; });
+      lines.push('最大支出カテゴリは「'+topItem.cat+'」(¥'+topItem.amt.toLocaleString()+')。このカテゴリの見直しが最も効果的だ。');
+    }
+  }
+
+  var st = parseInt(stress)||3;
+  if(st>=4) lines.push('ストレス度'+st+'は高水準。高ストレス状態では衝動的な支出が増加しやすい。');
+  else if(st<=2) lines.push('ストレス度'+st+'は低水準。精神的安定は意思決定の質を高める。');
+
+  if(investTotal > 0){
+    if(investDone === investTotal) lines.push('積立確認'+investDone+'/'+investTotal+'完了。積立の自動化と確認の習慣化が資産形成の土台だ。');
+    else if(investDone > 0) lines.push('積立確認'+investDone+'/'+investTotal+'。未確認項目の確認を推奨する。');
+    else lines.push('今月の積立確認を実施することを推奨する。');
+  }
+
+  lines.push('「'+praise+'」という自己評価を記録した。自己効力感の積み重ねが行動継続の基盤となる。');
+  lines.push('📌 '+rnd(ARIA_WISDOM));
+
+  return lines.join('\n');
+}
+
+// ── SUBMIT ──
+function submitReport(){
+  var praise = document.getElementById('praiseInp').value.trim();
+  if(!praise){ alert('「今日の自分を褒める」は必須入力項目です。自己評価の言語化がスコア算出に必要です。'); return; }
+  var items = getItems();
+  var total = items.reduce(function(s,i){ return s+i.amt; },0);
+  var income = parseInt(document.getElementById('incomeInp').value)||0;
+  var net = total - income;
+  var stressBtn = document.querySelector('.sbtn.active');
+  var stress = stressBtn?stressBtn.textContent:'3';
+  var moodBtn = document.querySelector('.mood-btn.active span');
+  var mood = moodBtn?moodBtn.textContent:'−';
+
+  // 積立確認状態を取得
+  var investChecks = getInvestChecks();
+  var investDone = investChecks.filter(function(c){ return c.done; }).length;
+  var investTotal = investChecks.length;
+
+  var aria = pickComment(net, praise, investDone, investTotal);
+  document.getElementById('respText').textContent = aria;
+
+  var score = calcScore(net, praise, stress, investDone, investTotal);
+  document.getElementById('scoreNum').textContent = score;
+
+  var shortDate = formatDateLabel(reportDate);
+  buildAllTweetTypes(net, praise, income, items, shortDate);
+  setTweet(1, tw1Types.diary);
+
+  var evalMsg = getEval(score, net, praise, investDone, investTotal, mood, stress, items);
+  var t2 = '【AIアドバイザーAriaの評価】'+shortDate+'\n'+score+'点/100点\n\n'+evalMsg+'\n\n#AIに判断を任せる士業 #資産形成';
+  setTweet(2, t2);
+
+  var rec={dateKey:dateKey(reportDate),dateLabel:shortDate,score:score,net:net,total:total,income:income,items:items,mood:mood,praise:praise,investDone:investDone,investTotal:investTotal,stress:stress,achieved:net<=BUDGET,ariaMsg:aria,tweet1:tw1Types.diary,tweet2:t2,savedAt:new Date().toISOString()};
+  saveRecord(rec);
+
+  var wrap = document.getElementById('respWrap');
+  wrap.style.display='block'; wrap.className='resp-wrap fade-up';
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+  renderHome();
+}
+
+// ── TWEET UTILS ──
+function setTweet(n, text){
+  if(n===1) tw1=text; else tw2=text;
+  var box = document.getElementById('tweetBox'+n);
+  var cnt = document.getElementById('cc'+n);
+  if(box) box.textContent = text;
+  if(cnt) cnt.textContent = (text?text.length:0)+' / 140文字';
+}
+function copyTweet(n){
+  var text = n===1?tw1:tw2;
+  try{ navigator.clipboard.writeText(text); } catch(e){
+    var ta=document.createElement('textarea'); ta.value=text;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  var btn = document.getElementById('cpBtn'+n);
+  var orig = btn.textContent; btn.textContent='✅ コピーしたよ！';
+  setTimeout(function(){ btn.textContent=orig; },2000);
+}
+function postTweet(n){
+  var text = n===1?tw1:tw2;
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+}
+
+// ── CALENDAR ──
+function renderCalendar(){
+  var recs=getAllRecords(); var recMap={};
+  recs.forEach(function(r){ recMap[r.dateKey]=r; });
+  var total30=0,ach30=0,totalScore=0,scoreCount=0;
+  var ago30=new Date(now); ago30.setDate(ago30.getDate()-30);
+  recs.forEach(function(r){
+    var d=new Date(r.dateKey);
+    if(d>=ago30){ total30++; if(r.achieved) ach30++; totalScore+=r.score; scoreCount++; }
+  });
+  var avgScore=scoreCount>0?Math.round(totalScore/scoreCount):0;
+  var achRate=total30>0?Math.round(ach30/total30*100):0;
+  var streak=calcStreak();
+  document.getElementById('statsGrid').innerHTML=
+    '<div class="stat-card"><div class="stat-num">'+total30+'<span class="stat-unit">日</span></div><div class="stat-label">30日の記録数</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+avgScore+'<span class="stat-unit">点</span></div><div class="stat-label">平均スコア</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+achRate+'<span class="stat-unit">%</span></div><div class="stat-label">達成率</div></div>'+
+    '<div class="stat-card highlight"><div class="stat-num">'+streak+'<span class="stat-unit">🔥</span></div><div class="stat-label">連続達成</div></div>';
+  document.getElementById('calTitle').textContent=calYear+'年'+(calMonth+1)+'月';
+  var grid=document.getElementById('calGrid'); grid.innerHTML='';
+  ['日','月','火','水','木','金','土'].forEach(function(d){ var el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+  var firstDay=new Date(calYear,calMonth,1).getDay();
+  var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  var todayKey=dateKey(now);
+  for(var i=0;i<firstDay;i++){ var el=document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
+  for(var d=1;d<=daysInMonth;d++){
+    var key=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var rec=recMap[key];
+    var el=document.createElement('div'); el.className='cal-day';
+    if(key===todayKey) el.className+=' today';
+    var numEl=document.createElement('div'); numEl.className='day-num'; numEl.textContent=d; el.appendChild(numEl);
+    if(rec){
+      el.className+=' has-data';
+      var dot=document.createElement('div'); dot.className='day-dot';
+      dot.style.background=rec.achieved?'#34d399':'#f87171'; el.appendChild(dot);
+      (function(r){ el.onclick=function(){ openModal(r); }; })(rec);
+    }
+    grid.appendChild(el);
+  }
+  document.getElementById('calEmpty').style.display=recs.length===0?'block':'none';
+}
+function prevMonth(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function nextMonth(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+
+// ── MODAL ──
+function openModal(rec){
+  document.getElementById('modalDate').textContent='📅 '+rec.dateLabel;
+  document.getElementById('modalScore').textContent=rec.score;
+  document.getElementById('modalBar').style.width=rec.score+'%';
+  var itemLines=rec.items&&rec.items.length>0?rec.items.map(function(i){ return i.cat+' ¥'+i.amt.toLocaleString(); }).join('　'):'記録なし';
+  var html='<div class="detail-sec">';
+  html+='<div class="detail-row"><div class="detail-icon">💰</div><div><div class="detail-lbl">支出合計</div><div class="detail-val">¥'+(rec.net||0).toLocaleString()+' / ¥'+BUDGET.toLocaleString()+' '+(rec.achieved?'✅達成':'❌未達成')+'</div></div></div>';
+  html+='<div class="detail-row"><div class="detail-icon">📋</div><div><div class="detail-lbl">内訳</div><div class="detail-val">'+itemLines+'</div></div></div>';
+  html+='</div><div class="detail-sec">';
+  html+='<div class="detail-row"><div class="detail-icon">😊</div><div><div class="detail-lbl">気分</div><div class="detail-val">'+(rec.mood||'−')+'</div></div></div>';
+  html+='<div class="detail-row"><div class="detail-icon">⭐</div><div><div class="detail-lbl">今日の自分</div><div class="detail-val">'+(rec.praise||'−')+'</div></div></div>';
+  html+='<div class="detail-row"><div class="detail-icon">📈</div><div><div class="detail-lbl">積立確認</div><div class="detail-val">'+(rec.investDone !== undefined ? rec.investDone+'/'+rec.investTotal+'完了' : '−')+'</div></div></div>';
+  html+='</div>';
+  html+='<div class="aria-bubble"><div class="aria-bubble-text">'+(rec.ariaMsg||'')+'</div></div>';
+  if(rec.tweet1){ html+='<div style="margin-bottom:6px;font-size:12px;font-weight:700;color:var(--text);">🐦 日報ツイート</div><div class="modal-tweet-box">'+rec.tweet1+'</div><button class="modal-copy-btn" onclick="copyText(\''+encodeURIComponent(rec.tweet1)+'\',this)">📋 日報ツイートをコピー</button>'; }
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function copyText(encoded,btn){
+  var text=decodeURIComponent(encoded);
+  try{navigator.clipboard.writeText(text);}catch(e){
+    var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  var orig=btn.textContent; btn.textContent='✅ コピーしたよ！';
+  setTimeout(function(){ btn.textContent=orig; },2000);
+}
+function closeModal(e){ if(e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+
+// ── FLOATING TWEET ──
+var fabTweetText = '';
+
+function buildFabTweetText(rec){
+  if(!rec) return '';
+  var achieved = rec.achieved ? '✅達成' : '❌未達成';
+  var diff = rec.achieved
+    ? '+¥'+(BUDGET - rec.net).toLocaleString()+' 余剰'
+    : '△¥'+Math.abs(BUDGET - rec.net).toLocaleString()+' 超過';
+
+  // カテゴリ別TOP3
+  var itemLine = '';
+  if(rec.items && rec.items.length > 0){
+    var sorted = rec.items.slice().sort(function(a,b){ return b.amt - a.amt; });
+    itemLine = sorted.slice(0,3).map(function(i){ return i.cat+'¥'+i.amt.toLocaleString(); }).join(' | ');
+  }
+
+  // 積立確認
+  var investLine = '';
+  if(rec.investTotal > 0){
+    investLine = '\n積立確認：'+rec.investDone+'/'+rec.investTotal+'完了';
+  }
+
+  var lines = [
+    rec.dateLabel+' #家計記録',
+    '',
+    '支出：¥'+rec.net.toLocaleString()+' '+achieved,
+    '予算対比：'+diff,
+  ];
+  if(itemLine) lines.push('内訳：'+itemLine);
+  if(investLine) lines.push(investLine.trim());
+  lines.push('');
+  lines.push('Ariaスコア：'+rec.score+'点 / 100点');
+  lines.push('');
+  lines.push('#AIに判断を任せる士業 #資産形成 #家計管理');
+
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function openTweetModal(){
+  // 最新の日報データを取得
+  var todayRec = loadRecord(toYMD(now));
+  var allRecs = getAllRecords();
+  var rec = todayRec || (allRecs.length > 0 ? allRecs[0] : null);
+
+  var overlay = document.getElementById('tweetModalOverlay');
+  var preview = document.getElementById('tweetModalPreview');
+  var charEl = document.getElementById('tweetModalChar');
+  var subEl = document.getElementById('tweetModalSub');
+  var fab = document.getElementById('fabTweet');
+
+  if(!rec){
+    preview.innerHTML = '<div class="no-report-msg">まだ日報データがありません。<br>日報タブから今日の記録を入力してください。</div>';
+    charEl.textContent = '';
+    subEl.textContent = 'データなし';
+    fabTweetText = '';
+    overlay.classList.add('open');
+    return;
+  }
+
+  fabTweetText = buildFabTweetText(rec);
+  preview.textContent = fabTweetText;
+  charEl.textContent = fabTweetText.length + ' / 140文字';
+
+  // 日付表示
+  var isToday = rec.dateKey === toYMD(now);
+  subEl.textContent = isToday ? '今日（'+rec.dateLabel+'）のデータ' : '最新データ：'+rec.dateLabel;
+
+  // FABのインジケーター
+  if(rec) fab.classList.add('has-data');
+
+  overlay.classList.add('open');
+}
+
+function closeTweetModal(e){
+  if(e.target === document.getElementById('tweetModalOverlay')){
+    document.getElementById('tweetModalOverlay').classList.remove('open');
+  }
+}
+
+function fabCopyTweet(){
+  if(!fabTweetText) return;
+  try{ navigator.clipboard.writeText(fabTweetText); } catch(e){
+    var ta = document.createElement('textarea');
+    ta.value = fabTweetText;
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  var btn = document.querySelector('.tweet-copy-btn');
+  var orig = btn.textContent;
+  btn.textContent = '✅ コピー完了';
+  setTimeout(function(){ btn.textContent = orig; }, 2000);
+}
+
+function fabPostTweet(){
+  if(!fabTweetText) return;
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(fabTweetText), '_blank');
+}
+
+// FABの初期状態更新
+function updateFab(){
+  var rec = loadRecord(toYMD(now));
+  var fab = document.getElementById('fabTweet');
+  if(fab){
+    if(rec) fab.classList.add('has-data');
+    else fab.classList.remove('has-data');
+  }
+}
+
+
+// ── HELP ──
+function toggleHelp(hdr){
+  var item = hdr.parentNode;
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>
